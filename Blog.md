@@ -32,7 +32,7 @@ The pub/sub pattern works as follows: the publisher sends a message to the messa
 Consider a payment gateway scenario in which the payment request can be successful, unsuccessful, or error. We want process different tasks in each of these three scenarios.
 The payment gateway will publish a message to exchange with the status. Payment status will serve as a routing key, and the exchange will route messages to queues based on the routing key/binding.
 
-c:\Users\Anjali\Desktop\RabbitMQ.png
+![RabbitMQ](RabbitMQ.png)
 
 ## Setup RabbitMQ connection
 
