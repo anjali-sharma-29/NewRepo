@@ -21,15 +21,21 @@ Here I am assuming you have already setup RabbitMQ on your machine. If not you c
 https://codenotfound.com/rabbitmq-download-install-windows.html
 
 ## Terminologies
-- **Producer**: An application which creates and sends message RabbitMQ broker. It publish message to the exchange
-- **Exchange**: A component of RabbitMQ which directs messages to Queue. In this article we will talk about Direct Exchange, Fanout Exchange and Topic Exchange.
-- **Queues**: It stores the messages
+- **Producer**: An application which creates and sends message to RabbitMQ broker. It publish message to the exchange
+- **Exchange**: A component of RabbitMQ which directs messages to Queue. There are multple exchange type in RabbitMQ. 
+1.Direct : 1:1 messaging to qeueue
+2.Fanout: Broadcasting messages to all the queues which are bind to the exchange.
+3.Topic : A message sent with a particular routing key will be delivered to all the queues that are bound with a matching binding key.   
+In this article we will talk Topic Exchange.
+
+- **Queues**: It stores the messages.
 - **Bindings**: It binds exchange and queue. Based on the binding the exchange publishes the message to specific queue. 
 - **Consumer**: An application responsible for receiving and processing messages from a queue
 
 The pub/sub pattern works as follows: the publisher sends a message to the message broker, who then routes the message to all subscribers who have expressed an interest in receiving it. Subscribers do not need to be aware of the publisher and vice versa. The message broker act as an middleware that decouples the two.
 
-Consider a payment gateway scenario in which the payment request can be successful, unsuccessful, or error. We want process different tasks in each of these three scenarios.
+Consider a scenario in which a user purchases Learning Path having multiple courses from a Udemy. The user places the order, and the payment request is sent to the payment gateway.
+In this case, the payment request can be successful, unsuccessful, or error. Each status has a unique scenario. If the payment is successful, we want to assign courses to the user. If a payment fails or an error occurs, we want to notify the user and provide a link to fix the payment. In this case, we would have three applications : payment gateway(Udemy site), CourseAssignment application, and Notification Apllication.
 The payment gateway will publish a message to exchange with the status. Payment status will serve as a routing key, and the exchange will route messages to queues based on the routing key/binding.
 
 ![RabbitMQ](RabbitMQ.png)
@@ -146,4 +152,4 @@ _channel.BasicConsume(queue: "notification",
 ```
 ## Conclusion
 
-In this way, different application can communicate with each other using rabbitmq and can setup pub/sub messaging model in our application.
+In this way we can implement pub/sub messaging model using RabbitMQ  topic exchange to do inter communication between applications. 
