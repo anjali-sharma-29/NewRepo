@@ -3,7 +3,7 @@ title: Asynchronous messaging using Rabbit MQ
 subtitle: Publish/Subscribe messaging model using RabbitMQ
 date: '2023-12-23'
 author: Anjali Sharma
-image: netoauth.jpg
+image: RabbitMQ.png
 tags:
   - c sharp
   - asp.net
