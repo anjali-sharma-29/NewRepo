@@ -23,10 +23,9 @@ https://codenotfound.com/rabbitmq-download-install-windows.html
 ## Terminologies
 - **Producer**: An application which creates and sends message to RabbitMQ broker. It publish message to the exchange
 - **Exchange**: A component of RabbitMQ which directs messages to Queue. There are multple exchange type in RabbitMQ. 
-- **1.Direct** : 1:1 messaging to qeueue
-- **2.Fanout**: Broadcasting messages to all the queues which are bind to the exchange.
-- **3.Topic** : A message sent with a particular routing key will be delivered to all the queues that are bound with a matching binding key.   
-In this article we will talk Topic Exchange.
+     - **Direct** : 1:1 messaging to qeueue
+     - **Fanout**: Broadcasting messages to all the queues which are bind to the exchange.
+     - **Topic** : A message sent with a particular routing key will be delivered to all the queues that are bound with a matching binding key. In this article we will talk about Topic Exchange in detail.
 
 - **Queues**: It stores the messages.
 - **Bindings**: It binds exchange and queue. Based on the binding the exchange publishes the message to specific queue. 
@@ -79,14 +78,14 @@ Declare queue for status Payment successful and for failure/error notification q
 
 Bind queue to routingKey and exchange. A queue can be bind to single or multiple routingKey as well. 
 `payment_success` is bind to `routingKey=*.successful.*`. Below mentioned are few examples of routingKey which would be routed to this queue.
--payment.successful.assign.courses
--successful.assign.courses
--payment.order.successful.assign.courses
+- payment.successful.assign.courses
+- successful.assign.courses
+- payment.order.successful.assign.courses
 
 Notification queue is bind to `routingKey=*.failed.*`. In this case messages with following routingKey key would be send to 
--payment.failed.notify
--failed.revert.demo
--failed
+- payment.failed.notify
+- failed.revert.demo
+- failed
 
 Notification queue is also bind to `routingKey=error`. In this case the routingKey allowed is `error` only.
 
