@@ -23,9 +23,9 @@ https://codenotfound.com/rabbitmq-download-install-windows.html
 ## Terminologies
 - **Producer**: An application which creates and sends message to RabbitMQ broker. It publish message to the exchange
 - **Exchange**: A component of RabbitMQ which directs messages to Queue. There are multple exchange type in RabbitMQ. 
-1.Direct : 1:1 messaging to qeueue
-2.Fanout: Broadcasting messages to all the queues which are bind to the exchange.
-3.Topic : A message sent with a particular routing key will be delivered to all the queues that are bound with a matching binding key.   
+- **1.Direct** : 1:1 messaging to qeueue
+- **2.Fanout**: Broadcasting messages to all the queues which are bind to the exchange.
+- **3.Topic** : A message sent with a particular routing key will be delivered to all the queues that are bound with a matching binding key.   
 In this article we will talk Topic Exchange.
 
 - **Queues**: It stores the messages.
