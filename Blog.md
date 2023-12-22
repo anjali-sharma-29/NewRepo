@@ -1,9 +1,9 @@
 ---
-title: Asynchronous messaging using Rabbit MQ 
+title: Asynchronous messaging using Rabbit MQ
 subtitle: Publish/Subscribe messaging model using RabbitMQ
 date: '2023-12-23'
 author: Anjali Sharma
-image: RabbitMQ.png
+image: RabbitMQ.jpg
 tags:
   - c sharp
   - asp.net
@@ -13,42 +13,47 @@ tags:
 
 ## Publish/Subscribe messaging model using RabbitMQ
 
-RabbitMQ is widely used open-source message broker. Businesses that use the microservices model can use this tiny piece of software to connect and communicate between their services.This blog post will explain how to incorporate pub/sub messaging into applications.
+RabbitMQ, a widely used open-source message broker, is heavily utilized by businesses implementing the microservices paradigm. For organizations embracing this approach, RabbitMQ functions as a streamlined tool that enables smooth connection and communication among their services. This article is intended to clarify the steps involved in integrating pub/sub messaging into applications.
 
 ## Prerequisites
 
-Here I am assuming you have already setup RabbitMQ on your machine. If not you can follow this blog post to setup.
+I presume you have already configured RabbitMQ on your system. If not, you can refer to this blog post for the setup instructions.
 https://codenotfound.com/rabbitmq-download-install-windows.html
 
 ## Terminologies
-- **Producer**: An application which creates and sends message to RabbitMQ broker. It publish message to the exchange
-- **Exchange**: A component of RabbitMQ which directs messages to Queue. There are multple exchange type in RabbitMQ. 
-     - **Direct** : 1:1 messaging to qeueue
-     - **Fanout**: Broadcasting messages to all the queues which are bind to the exchange.
-     - **Topic** : A message sent with a particular routing key will be delivered to all the queues that are bound with a matching binding key. In this article we will talk about Topic Exchange in detail.
+
+- **Producer**: An application that generates and dispatches messages to the RabbitMQ broker, publishing these messages to the exchange.
+- **Exchange**: A RabbitMQ component responsible for routing messages to queues. RabbitMQ supports multiple exchange types.
+
+  - **Direct** : 1:1 messaging to qeueue
+  - **Fanout**: Broadcasting messages to all the queues bound to the exchange.
+  - **Topic** : A message sent with a particular routing key will be delivered to all the queues that are bound with a matching binding key. In this article we will talk about Topic Exchange in detail.
 
 - **Queues**: It stores the messages.
-- **Bindings**: It binds exchange and queue. Based on the binding the exchange publishes the message to specific queue. 
-- **Consumer**: An application responsible for receiving and processing messages from a queue
+- **Bindings**: It binds exchange and queue. Based on the binding the exchange publishes the message to specific queue.
+- **Consumer**: An application responsible for receiving and handling messages from a queue.
 
-The pub/sub pattern works as follows: the publisher sends a message to the message broker, who then routes the message to all subscribers who have expressed an interest in receiving it. Subscribers do not need to be aware of the publisher and vice versa. The message broker act as an middleware that decouples the two.
+The pub/sub pattern operates in the following manner: the publisher dispatches a message to the message broker, which subsequently directs the message to all subscribers expressing an interest in receiving it. Subscribers and publishers need not be aware of each other. The message broker acts as middleware, effectively decoupling the two.
 
-Consider a scenario in which a user purchases Learning Path having multiple courses from a Udemy. The user places the order, and the payment request is sent to the payment gateway.
-In this case, the payment request can be successful, unsuccessful, or error. Each status has a unique scenario. If the payment is successful, we want to assign courses to the user. If a payment fails or an error occurs, we want to notify the user and provide a link to fix the payment. In this case, we would have three applications : payment gateway(Udemy site), CourseAssignment application, and Notification Apllication.
-The payment gateway will publish a message to exchange with the status. Payment status will serve as a routing key, and the exchange will route messages to queues based on the routing key/binding.
+Consider a scenario in which a user purchases a Learning Path with multiple courses from Udemy. After the user places the order, a payment request is transmitted to the payment gateway.
 
-![RabbitMQ](RabbitMQ.png)
+In this context, the payment request can result in three distinct statuses: successful, unsuccessful, or an error state, each with its unique implications. If the payment is successful, the objective is to allocate the courses to the user. In the event of a payment failure or an error occurrence, the goal is to inform the user and provide a link to address the payment issue.
+
+In this scenario, three applications are involved: the payment gateway (on the Udemy site), the Course Assignment application, and the Notification Application. The payment gateway will publish a message to an exchange, incorporating the payment status as the routing key. The exchange, utilizing the routing key/binding mechanism, will route messages to the appropriate queues based on the payment status.
+
+![RabbitMQ](https://kacoders.imgix.net/blogimages/RabbitMQPubSub.png)
 
 ## Setup RabbitMQ connection
 
 ```c sharp:PaymentGateway.cs
-        var _factory = new ConnectionFactory { HostName = "localhost" };           
-        var connection = _factory.CreateConnection();                                
-        var _channel = connection.CreateModel();                                          
+        var _factory = new ConnectionFactory { HostName = "localhost" };
+        var connection = _factory.CreateConnection();
+        var _channel = connection.CreateModel();
 ```
+
 ## Declare Exchange
 
-Declare paymentexchange with Topic as ExchangeType.
+Declare `paymentexchange` with Topic as ExchangeType.
 
 ```c sharp:PaymentGateway.cs
         _channel.ExchangeDeclare(
@@ -58,7 +63,7 @@ Declare paymentexchange with Topic as ExchangeType.
 
 ## Declare Queue
 
-Declare queue for status Payment successful and for failure/error notification queue. 
+Define a queue for the "Payment Successful" status and another queue for failure/error notifications.
 
 ```c sharp:PaymentGateway.cs
        // Queue for payment successful
@@ -74,20 +79,23 @@ Declare queue for status Payment successful and for failure/error notification q
                          autoDelete: false,
                          arguments: null);
 ```
+
 ## Bind Queue
 
-Bind queue to routingKey and exchange. A queue can be bind to single or multiple routingKey as well. 
-`payment_success` is bind to `routingKey=*.successful.*`. Below mentioned are few examples of routingKey which would be routed to this queue.
+Establish a binding between a queue, a routing key, and an exchange. A queue can be bound to either a single or multiple routing keys.
+For example, the queue named `payment_success` is bound to the `routingkey=*.successful.*`. The following are some examples of routing keys that would be directed to this specific queue.
+
 - payment.successful.assign.courses
 - successful.assign.courses
 - payment.order.successful.assign.courses
 
-Notification queue is bind to `routingKey=*.failed.*`. In this case messages with following routingKey key would be send to 
+The notification queue is bound to `routingKey=*.failed.*`. Consequently, messages with the following routing keys would be forwarded to the queue:
+
 - payment.failed.notify
 - failed.revert.demo
 - failed
 
-Notification queue is also bind to `routingKey=error`. In this case the routingKey allowed is `error` only.
+The notification queue is also bound to `routingKey=error`. In this scenario, only the routing key `error` is permitted.
 
 ```c sharp:PaymentGateway.cs
 _channel.QueueBind(queue: "payment_success",
@@ -101,7 +109,8 @@ _channel.QueueBind(queue: "notification",
                       exchange: "paymentexchange",
                       routingKey: "error")
 ```
-## Publish message by publisher 
+
+## Publish message by publisher
 
 ```c sharp:PaymentGateway.cs
 _channel.BasicPublish(exchange: "paymentexchange",
@@ -119,9 +128,12 @@ _channel.BasicPublish(exchange: "paymentexchange",
                              basicProperties: null,
                              body: Encoding.UTF8.GetBytes("Unable to process payments"));
 
-```  
+```
+
 ## Declare Consumer
-In AssignCourses application declare a consumer which is listening to `payment_success` queue. On receiving this message application will assign courses to the user.
+
+In the AssignCourses application, establish a consumer that listens to the payment_success queue. Upon receiving a message, the application will proceed to assign courses to the user.
+
 ```c sharp: AssignCourses.cs
 // setup rabbitmq client and get channel
 var consumer = new EventingBasicConsumer(channel);
@@ -132,12 +144,11 @@ consumer.Received+=(model, ea) =>
 _channel.BasicConsume(queue: "payment_success",
                                  autoAck: false,
                                  consumer: consumer)
-      
+
 ```
+Within the Notification application, define a consumer that actively monitors the notification queue. Upon receiving a message signaling payment failure or an error, the application will promptly notify the user, providing a link to rectify the payment for the order.
 
 ```c sharp: NotificationApp.cs
-
-In Notification application declare a consumer which is listening to `notification` queue. On receiving message on payment failure or error, this will notify user with link to re-do payment for order.
 // setup rabbitmq client and get channel
 var consumer = new EventingBasicConsumer(channel);
 consumer.Received+=(model, ea) =>
@@ -147,8 +158,9 @@ consumer.Received+=(model, ea) =>
 _channel.BasicConsume(queue: "notification",
                                  autoAck: false,
                                  consumer: consumer)
-      
+
 ```
+
 ## Conclusion
 
-In this way we can implement pub/sub messaging model using RabbitMQ  topic exchange to do inter communication between applications. 
+This approach allows us to implement a pub/sub messaging model by utilizing RabbitMQ's topic exchange for seamless intercommunication between applications.
